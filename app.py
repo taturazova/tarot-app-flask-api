@@ -3,6 +3,11 @@ from flask import Flask, request, jsonify
 from PIL import Image
 from pillow_heif import register_heif_opener
 from tarot_cards_detect import oneCardSpread
+import logging
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 app = Flask(__name__)
 
@@ -54,6 +59,8 @@ def one_card_spread():
 
         # Call the tarot card detection method
         result = oneCardSpread(image_data)
+        # Log request result
+        logging.info(f"Request result: {result}")
 
         if result is not None:
             # Tarot card found
@@ -64,6 +71,9 @@ def one_card_spread():
 
     except Exception as e:
         # Handle errors
+        # Log request result
+        logging.info(f"Request ERROR: {"error": str(e)}")
+
         return jsonify({"error": str(e)}), 500
 
 
