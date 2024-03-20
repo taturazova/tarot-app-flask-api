@@ -72,7 +72,7 @@ def one_card_spread():
     except Exception as e:
         # Handle errors
         # Log request result
-        logging.info(f"Request ERROR: {"error": str(e)}")
+        logging.info(f"Request ERROR: {'error': str(e)}")
 
         return jsonify({"error": str(e)}), 500
 
