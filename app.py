@@ -50,7 +50,7 @@ def one_card_spread():
             img_bytes = io.BytesIO()
             img.save(img_bytes, format="JPEG")
             img_bytes.seek(0)
-            image_data = img_bytes
+            image_data = img_bytes.read()
 
         # Call the tarot card detection method
         result = oneCardSpread(image_data)

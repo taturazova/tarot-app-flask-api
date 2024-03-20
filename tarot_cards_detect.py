@@ -10,7 +10,7 @@ with open("card_data.json", "r") as file:
 
 
 def oneCardSpread(image):
-    img_gray = cv2.imdecode(np.fromstring(image.read(), np.uint8), cv2.IMREAD_GRAYSCALE)
+    img_gray = cv2.imdecode(np.fromstring(image, np.uint8), cv2.IMREAD_GRAYSCALE)
     approx = findOneCardPolygon(img_gray)
     if approx is not None:
         roi = adjustCardPerspective(img_gray, approx)
