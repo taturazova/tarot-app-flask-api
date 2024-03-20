@@ -1,7 +1,16 @@
+import io
 from flask import Flask, request, jsonify
+from PIL import Image
+from pillow_heif import register_heif_opener
 from tarot_cards_detect import oneCardSpread
 
 app = Flask(__name__)
+
+ALLOWED_EXTENSIONS = {"heic", "jpg", "jpeg", "png"}
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/one_card_spread", methods=["POST"])
@@ -18,8 +27,33 @@ def one_card_spread():
         if image.filename == "":
             return jsonify({"error": "'image' file name is empty"}), 400
 
+        # Check if the file format is allowed
+        if not allowed_file(image.filename):
+            return (
+                jsonify(
+                    {
+                        "error": "Unsupported file format. Supported formats are: .heic, .jpg, .jpeg, .png"
+                    }
+                ),
+                400,
+            )
+
+        # Read the image data
+        image_data = image.read()
+
+        # Convert HEIC image to JPEG format if necessary
+        if image.filename.lower().endswith(".heic"):
+            register_heif_opener()
+            img = Image.open(io.BytesIO(image_data))
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            img_bytes = io.BytesIO()
+            img.save(img_bytes, format="JPEG")
+            img_bytes.seek(0)
+            image_data = img_bytes
+
         # Call the tarot card detection method
-        result = oneCardSpread(image)
+        result = oneCardSpread(image_data)
 
         if result is not None:
             # Tarot card found

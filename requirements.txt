@@ -1,3 +1,5 @@
 flask
 opencv-python
 tensorflow
+Pillow
+pillow_heif
