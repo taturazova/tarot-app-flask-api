@@ -31,7 +31,7 @@ def classifyCard(roi):
     roi = np.reshape(roi, (1, roi.shape[0], roi.shape[1], 1))
 
     # Load the saved model from the .h5 file
-    model = keras.models.load_model("10epochs_conv.h5")
+    model = keras.models.load_model("25epochs_conv.keras")
 
     # Make predictions using the loaded model
     predictions = model.predict(roi)
@@ -55,18 +55,25 @@ def findOneCardPolygon(image):
     )
 
     for i, h in enumerate(hierarchy[0]):
-        if h[3] == -1:  # contour has no parent
-            # Use polygon approximation to simplify the contour
-            epsilon = 0.02 * cv2.arcLength(contours[i], True)
-            approx = cv2.approxPolyDP(contours[i], epsilon, True)
-            area = cv2.contourArea(contours[i])
-            if len(approx) == 4 and area > 1000:
-                rect = cv2.minAreaRect(approx)
-                _, (w, h), _ = rect
-                aspect_ratio = max(w, h) / min(w, h)
+        # Use polygon approximation to simplify the contour
+        epsilon = 0.02 * cv2.arcLength(contours[i], True)
+        approx = cv2.approxPolyDP(contours[i], epsilon, True)
+        area = cv2.contourArea(contours[i])
+        # Calculate the length of the contour
+        contour_length = cv2.arcLength(contours[i], True)
+        # Calculate the convex hull of the contour
+        hull_length = cv2.arcLength(cv2.convexHull(contours[i]), True)
 
-                if 1.2 < aspect_ratio < 1.8:
-                    return approx
+        # Calculate the ratio of contour length to convex hull length
+        ratio = contour_length / hull_length if hull_length > 0 else contour_length
+
+        if ratio < 2 and len(approx) == 4 and area > 5000:
+            rect = cv2.minAreaRect(approx)
+            _, (w, h), _ = rect
+            aspect_ratio = max(w, h) / min(w, h)
+
+            if 1.2 < aspect_ratio < 1.8:
+                return approx
     return None
 
 
