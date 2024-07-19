@@ -1,4 +1,4 @@
-virt/
+venv/
 __pycache__/
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
